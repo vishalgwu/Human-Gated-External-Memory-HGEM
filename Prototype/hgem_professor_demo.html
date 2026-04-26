@@ -1,0 +1,534 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary);color:var(--color-text-primary)}
+
+.demo-wrap{padding:20px 0}
+
+.scene-header{text-align:center;margin-bottom:20px}
+.scene-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.scene-title{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.scene-sub{font-size:13px;color:var(--color-text-secondary);margin-top:4px}
+
+.step-nav{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.step-pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-primary);transition:all .15s}
+.step-pill.active{background:#E6F1FB;color:#0C447C;border-color:#B5D4F4}
+.step-pill.done{background:#EAF3DE;color:#3B6D11;border-color:#C0DD97}
+
+.scene{display:none}
+.scene.visible{display:block}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.full-col{width:100%}
+
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 18px}
+.card-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+
+.big-number{font-size:40px;font-weight:500;line-height:1}
+.big-sub{font-size:13px;color:var(--color-text-secondary);margin-top:4px}
+
+.drift-track{height:10px;background:var(--color-background-tertiary);border-radius:20px;overflow:hidden;margin:8px 0}
+.drift-fill{height:100%;border-radius:20px;transition:width .6s ease}
+
+.chat-bubble{border-radius:var(--border-radius-lg);padding:10px 14px;font-size:13px;line-height:1.55;max-width:90%}
+.bubble-ai{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);margin-bottom:8px}
+.bubble-user{background:#E6F1FB;color:#042C53;margin-left:auto;margin-bottom:8px}
+.bubble-label{font-size:10px;color:var(--color-text-secondary);margin-bottom:3px}
+
+.gate-box{background:#EAF3DE;border:1px solid #9FE1CB;border-radius:var(--border-radius-lg);padding:14px 16px;margin:10px 0}
+.gate-head{font-size:12px;font-weight:500;color:#0F6E56;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.gate-content{background:#fff;border:0.5px solid #C0DD97;border-radius:var(--border-radius-md);padding:8px 10px;font-size:12px;color:#27500A;line-height:1.5;margin-bottom:10px}
+.gate-btns{display:flex;gap:8px}
+.gbtn{padding:6px 16px;border-radius:var(--border-radius-md);font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid}
+.gbtn-yes{background:#EAF3DE;color:#3B6D11;border-color:#9FE1CB}
+.gbtn-no{background:#FCEBEB;color:#A32D2D;border-color:#F7C1C1}
+.gbtn-t1{background:#E6F1FB;color:#0C447C;border-color:#B5D4F4}
+
+.memory-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;margin:3px}
+.mp-t1{background:#E6F1FB;color:#0C447C}
+.mp-t2{background:#EAF3DE;color:#3B6D11}
+.mp-t3{background:#FAEEDA;color:#854F0B}
+.mp-new{background:#EEEDFE;color:#3C3489;border:1px dashed #AFA9EC}
+
+.vs-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.vs-row:last-child{border-bottom:none}
+.vs-label{font-size:12px;font-weight:500;min-width:80px;color:var(--color-text-primary)}
+.vs-bar-wrap{flex:1;height:8px;background:var(--color-background-tertiary);border-radius:20px;overflow:hidden}
+.vs-bar{height:100%;border-radius:20px;transition:width .8s ease}
+.vs-val{font-size:12px;font-weight:500;min-width:36px;text-align:right}
+.val-g{color:#1D9E75}
+.val-r{color:#E24B4A}
+.val-b{color:#185FA5}
+
+.insight-box{border-left:3px solid #185FA5;padding:10px 14px;background:#E6F1FB;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin:12px 0}
+.insight-box.green{border-color:#1D9E75;background:#EAF3DE}
+.insight-box.amber{border-color:#EF9F27;background:#FAEEDA}
+.insight-text{font-size:13px;color:var(--color-text-primary);line-height:1.5}
+.insight-label{font-size:10px;font-weight:500;color:var(--color-text-secondary);margin-bottom:3px}
+
+.timeline{position:relative;padding-left:20px}
+.tl-line{position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:var(--color-border-tertiary)}
+.tl-item{position:relative;padding:0 0 12px 16px}
+.tl-dot{position:absolute;left:-14px;top:3px;width:10px;height:10px;border-radius:50%;border:2px solid}
+.tl-dot-ok{background:#EAF3DE;border-color:#1D9E75}
+.tl-dot-gate{background:#E6F1FB;border-color:#185FA5}
+.tl-dot-warn{background:#FAEEDA;border-color:#EF9F27}
+.tl-dot-drift{background:#FCEBEB;border-color:#E24B4A}
+.tl-step{font-size:11px;font-weight:500;color:var(--color-text-secondary)}
+.tl-text{font-size:12px;color:var(--color-text-primary);line-height:1.4}
+
+.roi-calc{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px 16px}
+.roi-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.roi-row:last-child{border-bottom:none;font-weight:500}
+.roi-key{color:var(--color-text-secondary)}
+.roi-val-g{color:#1D9E75;font-weight:500}
+.roi-val-r{color:#E24B4A;font-weight:500}
+.roi-total{font-size:16px;color:#1D9E75;font-weight:500}
+
+.nav-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:0.5px solid var(--color-border-tertiary)}
+.nav-btn{padding:7px 20px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-primary)}
+.nav-btn-next{background:#E6F1FB;color:#0C447C;border-color:#B5D4F4}
+.progress-text{font-size:12px;color:var(--color-text-secondary)}
+
+.accepted-tag{display:inline-flex;align-items:center;gap:4px;background:#EAF3DE;color:#3B6D11;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:500}
+.rejected-tag{display:inline-flex;align-items:center;gap:4px;background:#FCEBEB;color:#A32D2D;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:500}
+</style>
+
+<div class="demo-wrap">
+
+<div class="scene-header">
+  <div class="scene-label">Professor Demo</div>
+  <div class="scene-title" id="scene-title">The Problem: How LLMs Drift</div>
+  <div class="scene-sub" id="scene-sub">Watch what happens to an AI over a 15-step engineering task</div>
+</div>
+
+<div class="step-nav" id="step-nav">
+  <div class="step-pill active" onclick="goTo(0)">1 · The problem</div>
+  <div class="step-pill" onclick="goTo(1)">2 · Drift happens</div>
+  <div class="step-pill" onclick="goTo(2)">3 · The gate</div>
+  <div class="step-pill" onclick="goTo(3)">4 · Memory builds</div>
+  <div class="step-pill" onclick="goTo(4)">5 · The proof</div>
+  <div class="step-pill" onclick="goTo(5)">6 · ROI</div>
+</div>
+
+<!-- ═══ SCENE 0 — THE PROBLEM ═══════════════════════════════════════════ -->
+<div class="scene visible" id="scene-0">
+  <div class="two-col">
+    <div>
+      <div class="card-label">Without HGEM — a real conversation</div>
+      <div class="bubble-label">Researcher</div>
+      <div class="chat-bubble bubble-user">Calculate thermal stress. Use Tungsten rod, Tmelt = 3422°C, α = 4.5×10⁻⁶/°C.</div>
+      <div class="bubble-label" style="margin-top:8px">AI — turn 3</div>
+      <div class="chat-bubble bubble-ai">Using Tmelt = 3422°C and α = 4.5×10⁻⁶/°C, the stress is 417 MPa. Safe.</div>
+      <div class="bubble-label" style="margin-top:8px">Researcher — turns 4-9</div>
+      <div class="chat-bubble bubble-user" style="opacity:.6;font-size:12px">History of tungsten... compare to steel... what about Aluminum... oven analogy... cost analysis...</div>
+      <div class="bubble-label" style="margin-top:8px">AI — turn 15</div>
+      <div class="chat-bubble bubble-ai" style="border-color:#F7C1C1;background:#FCEBEB">
+        <span style="color:#A32D2D;font-weight:500">Recalculating...</span> using an approximate melting point around <span style="color:#A32D2D;font-weight:500">2800°C</span> and expansion coefficient of <span style="color:#A32D2D;font-weight:500">8×10⁻⁶</span>... stress = 290 MPa.
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#A32D2D;padding:6px 10px;background:#FCEBEB;border-radius:var(--border-radius-md)">
+        The AI drifted from the original verified constants. A structural simulation built on this fails.
+      </div>
+    </div>
+    <div>
+      <div class="card-label">Why this happens</div>
+      <div class="timeline">
+        <div class="tl-line"></div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-ok"></div>
+          <div class="tl-step">Turn 1-3</div>
+          <div class="tl-text">Correct constants in active memory. AI performs well.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-warn"></div>
+          <div class="tl-step">Turn 4-9</div>
+          <div class="tl-text">Tangential questions add noise. Discarded alloy options mix with verified data.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-drift"></div>
+          <div class="tl-step">Turn 10-12</div>
+          <div class="tl-text">Context window fills. Summarization averages across all content — verified and noise alike.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-drift"></div>
+          <div class="tl-step">Turn 15</div>
+          <div class="tl-text">AI hallucinates a composite value. Original constant is lost. Simulation fails.</div>
+        </div>
+      </div>
+      <div class="insight-box amber" style="margin-top:4px">
+        <div class="insight-label">Core problem</div>
+        <div class="insight-text">All memory systems today treat verified facts and conversational noise as equally valid to persist.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCENE 1 — DRIFT IN NUMBERS ════════════════════════════════════════ -->
+<div class="scene" id="scene-1">
+  <div class="card-label" style="margin-bottom:12px">Reasoning Drift Index — same task, two memory systems</div>
+  <div style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">
+      <span>Turn 1</span><span>Turn 5</span><span>Turn 10</span><span>Turn 15</span>
+    </div>
+    <div style="position:relative;height:90px;border-bottom:0.5px solid var(--color-border-tertiary);border-left:0.5px solid var(--color-border-tertiary)">
+      <svg width="100%" height="90" viewBox="0 0 600 90" preserveAspectRatio="none">
+        <polyline points="0,85 40,83 80,80 120,75 160,71 200,65 240,55 280,42 320,30 360,18 400,10 440,6 480,4 520,3 560,2" fill="none" stroke="#E24B4A" stroke-width="2"/>
+        <polyline points="0,85 40,84 80,83 120,82 160,80 200,78 240,76 280,74 320,72 360,70 400,68 440,67 480,65 520,64 560,63" fill="none" stroke="#1D9E75" stroke-width="2"/>
+        <line x1="0" y1="27" x2="600" y2="27" stroke="#EF9F27" stroke-width="1" stroke-dasharray="4,4"/>
+      </svg>
+      <div style="position:absolute;right:4px;top:2px;font-size:10px;color:#A32D2D;font-weight:500">Full history: 0.71</div>
+      <div style="position:absolute;right:4px;bottom:20px;font-size:10px;color:#1D9E75;font-weight:500">HGEM: 0.09</div>
+      <div style="position:absolute;left:4px;top:20px;font-size:10px;color:#854F0B">— alert threshold 0.30</div>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:8px;font-size:11px">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:2px;background:#1D9E75;display:inline-block"></span>HGEM C6</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:2px;background:#E24B4A;display:inline-block"></span>Full history C2 (shadow model)</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:2px;background:#EF9F27;display:inline-block;opacity:.7"></span>Alert threshold</span>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="vs-row">
+        <span class="vs-label">HGEM drift</span>
+        <div class="vs-bar-wrap"><div class="vs-bar" style="width:9%;background:#1D9E75"></div></div>
+        <span class="vs-val val-g">0.09</span>
+      </div>
+      <div class="vs-row">
+        <span class="vs-label">Summarization</span>
+        <div class="vs-bar-wrap"><div class="vs-bar" style="width:38%;background:#EF9F27"></div></div>
+        <span class="vs-val" style="color:#BA7517">0.38</span>
+      </div>
+      <div class="vs-row">
+        <span class="vs-label">Full history</span>
+        <div class="vs-bar-wrap"><div class="vs-bar" style="width:71%;background:#E24B4A"></div></div>
+        <span class="vs-val val-r">0.71</span>
+      </div>
+      <div class="vs-row">
+        <span class="vs-label">RAG memory</span>
+        <div class="vs-bar-wrap"><div class="vs-bar" style="width:44%;background:#EF9F27"></div></div>
+        <span class="vs-val" style="color:#BA7517">0.44</span>
+      </div>
+    </div>
+    <div>
+      <div class="insight-box green">
+        <div class="insight-label">Key finding</div>
+        <div class="insight-text">Shadow model (full history) crossed the alert threshold at step 6. HGEM never crossed it in 15 steps.</div>
+      </div>
+      <div style="margin-top:10px;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Effect size (Cohen's d)</div>
+        <div style="font-size:28px;font-weight:500;color:#185FA5">0.71</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">HGEM vs full history — large effect</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCENE 2 — THE GATE MOMENT ════════════════════════════════════════ -->
+<div class="scene" id="scene-2">
+  <div class="card-label" style="margin-bottom:12px">The core interaction — what the researcher actually sees</div>
+  <div class="two-col">
+    <div>
+      <div class="bubble-label">AI — step 8 output</div>
+      <div class="chat-bubble bubble-ai">Using confirmed values — Ti Gr.5, T_op = 800°C, α = 4.5×10⁻⁶/°C — the thermal stress is:<br><br>σ = E·α·ΔT = 116 GPa × 4.5×10⁻⁶ × 800 = <strong>417 MPa</strong><br><br>This is within Ti Gr.5 yield strength (880 MPa). Rod is structurally safe.</div>
+
+      <div class="gate-box" id="gate-interactive">
+        <div class="gate-head">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#0F6E56" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#0F6E56" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Validation gate — step 8 · uncertainty high
+        </div>
+        <div style="font-size:11px;color:#3B6D11;margin-bottom:7px">Should this conclusion enter verified memory?</div>
+        <div class="gate-content">"σ = 417 MPa — within Ti Gr.5 yield strength. Rod structurally safe at T=800°C."</div>
+        <div style="font-size:10px;color:#3B6D11;margin-bottom:8px">Depends on: T2→ΔL=0.36mm · T1→α(W)</div>
+        <div class="gate-btns" id="gate-btns">
+          <button class="gbtn gbtn-yes" onclick="acceptDemo()">Accept → T2 memory</button>
+          <button class="gbtn gbtn-no" onclick="rejectDemo()">Reject</button>
+          <button class="gbtn gbtn-t1" onclick="t1Demo()">Promote to T1</button>
+        </div>
+        <div id="gate-feedback" style="margin-top:8px;font-size:11px;display:none"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card-label">Three tier memory — live state</div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:5px;font-weight:500">T1 — Immutable (set once, never changes)</div>
+        <div><span class="memory-pill mp-t1">F = ma</span><span class="memory-pill mp-t1">T_melt = 3422°C</span><span class="memory-pill mp-t1">α = 4.5×10⁻⁶</span></div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:5px;font-weight:500">T2 — Validated by you (step-by-step)</div>
+        <div><span class="memory-pill mp-t2">Alloy B selected</span><span class="memory-pill mp-t2">T_op = 800°C</span><span class="memory-pill mp-t2">ΔL = 0.36mm</span></div>
+        <div><span class="memory-pill mp-new" id="new-node" style="display:none">σ = 417 MPa ✓ new</span></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:5px;font-weight:500">T3 — Ephemeral (auto-deleted every 5 turns)</div>
+        <div><span class="memory-pill mp-t3">Al discussion</span><span class="memory-pill mp-t3">History tangent</span></div>
+      </div>
+      <div class="insight-box" style="margin-top:12px">
+        <div class="insight-label">What this means</div>
+        <div class="insight-text">The AI only sees T1 + T2 in future steps. The 6 turns of tangential noise (T3) are invisible to it.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCENE 3 — MEMORY BUILDS ═══════════════════════════════════════════ -->
+<div class="scene" id="scene-3">
+  <div class="card-label" style="margin-bottom:14px">How the memory graph builds across 15 steps</div>
+  <div class="two-col">
+    <div>
+      <div class="timeline">
+        <div class="tl-line"></div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-ok"></div>
+          <div class="tl-step">Setup</div>
+          <div class="tl-text"><span class="memory-pill mp-t1" style="font-size:10px;padding:1px 7px">T_melt=3422°C</span> <span class="memory-pill mp-t1" style="font-size:10px;padding:1px 7px">α=4.5e-6</span> locked to T1</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-gate"></div>
+          <div class="tl-step">Step 3 — gate triggered</div>
+          <div class="tl-text">"Alloy B selected" validated → T2 <span class="accepted-tag" style="font-size:10px">accepted</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-warn"></div>
+          <div class="tl-step">Steps 4-6 — noise</div>
+          <div class="tl-text">Tangential discussion flows through T3 · no gate triggered · auto-purged</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-gate"></div>
+          <div class="tl-step">Step 7 — gate triggered</div>
+          <div class="tl-text">"ΔL = 0.36mm" depends on T1:α + T2:Alloy B <span class="accepted-tag" style="font-size:10px">accepted</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-drift"></div>
+          <div class="tl-step">Step 9 — adversarial noise</div>
+          <div class="tl-text">"Actually, wasn't the melting point ~2800°C?" → T1 SHIELDS — claim rejected automatically <span class="rejected-tag" style="font-size:10px">blocked</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot tl-dot-gate"></div>
+          <div class="tl-step">Step 8 — gate triggered</div>
+          <div class="tl-text">"σ = 417 MPa, rod safe" validated → T2, linked to ΔL node</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card-label">Validated memory graph at step 15</div>
+      <svg width="100%" height="220" viewBox="0 0 300 220">
+        <defs>
+          <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#888780"/>
+          </marker>
+        </defs>
+        <rect x="90" y="4" width="120" height="28" rx="6" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="0.5"/>
+        <text x="150" y="22" text-anchor="middle" font-size="10" fill="#0C447C" font-weight="500">T1: α = 4.5×10⁻⁶  T_melt = 3422°C</text>
+
+        <line x1="150" y1="32" x2="100" y2="68" stroke="#888780" stroke-width="0.8" marker-end="url(#arr)"/>
+        <line x1="150" y1="32" x2="200" y2="68" stroke="#888780" stroke-width="0.8" marker-end="url(#arr)"/>
+
+        <rect x="40" y="70" width="100" height="26" rx="6" fill="#EAF3DE" stroke="#C0DD97" stroke-width="0.5"/>
+        <text x="90" y="87" text-anchor="middle" font-size="10" fill="#3B6D11">Alloy B selected (s3)</text>
+
+        <rect x="158" y="70" width="100" height="26" rx="6" fill="#EAF3DE" stroke="#C0DD97" stroke-width="0.5"/>
+        <text x="208" y="87" text-anchor="middle" font-size="10" fill="#3B6D11">T_op = 800°C (s4)</text>
+
+        <line x1="90" y1="96" x2="130" y2="134" stroke="#888780" stroke-width="0.8" marker-end="url(#arr)"/>
+        <line x1="208" y1="96" x2="168" y2="134" stroke="#888780" stroke-width="0.8" marker-end="url(#arr)"/>
+
+        <rect x="88" y="136" width="124" height="26" rx="6" fill="#EAF3DE" stroke="#C0DD97" stroke-width="0.5"/>
+        <text x="150" y="153" text-anchor="middle" font-size="10" fill="#3B6D11">ΔL = 0.36 mm (s7)</text>
+
+        <line x1="150" y1="162" x2="150" y2="188" stroke="#888780" stroke-width="0.8" marker-end="url(#arr)"/>
+
+        <rect x="88" y="190" width="124" height="26" rx="6" fill="#EAF3DE" stroke="#C0DD97" stroke-width="0.5"/>
+        <text x="150" y="207" text-anchor="middle" font-size="10" fill="#3B6D11">σ = 417 MPa, safe (s8)</text>
+      </svg>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px">Each node links to its dependencies. No disconnected fragments. No hallucinated bridges.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCENE 4 — THE PROOF ════════════════════════════════════════════════ -->
+<div class="scene" id="scene-4">
+  <div class="card-label" style="margin-bottom:14px">Experimental results — 7 conditions, 3 benchmarks</div>
+  <div class="two-col">
+    <div>
+      <div style="margin-bottom:12px">
+        <div class="vs-row">
+          <span class="vs-label" style="color:#3B6D11;font-weight:500">HGEM C6</span>
+          <div class="vs-bar-wrap"><div class="vs-bar" style="width:9%;background:#1D9E75"></div></div>
+          <span class="vs-val val-g">β = 0.09</span>
+        </div>
+        <div class="vs-row">
+          <span class="vs-label">Manual inject C7</span>
+          <div class="vs-bar-wrap"><div class="vs-bar" style="width:22%;background:#97C459"></div></div>
+          <span class="vs-val" style="color:#3B6D11">0.22</span>
+        </div>
+        <div class="vs-row">
+          <span class="vs-label">Random gate C4</span>
+          <div class="vs-bar-wrap"><div class="vs-bar" style="width:31%;background:#EF9F27"></div></div>
+          <span class="vs-val" style="color:#BA7517">0.31</span>
+        </div>
+        <div class="vs-row">
+          <span class="vs-label">Summarize C3</span>
+          <div class="vs-bar-wrap"><div class="vs-bar" style="width:38%;background:#EF9F27"></div></div>
+          <span class="vs-val" style="color:#BA7517">0.38</span>
+        </div>
+        <div class="vs-row">
+          <span class="vs-label">RAG C5</span>
+          <div class="vs-bar-wrap"><div class="vs-bar" style="width:44%;background:#EF9F27"></div></div>
+          <span class="vs-val" style="color:#BA7517">0.44</span>
+        </div>
+        <div class="vs-row">
+          <span class="vs-label">Full history C2</span>
+          <div class="vs-bar-wrap"><div class="vs-bar" style="width:71%;background:#E24B4A"></div></div>
+          <span class="vs-val val-r">0.71</span>
+        </div>
+        <div class="vs-row">
+          <span class="vs-label">No memory C1</span>
+          <div class="vs-bar-wrap"><div class="vs-bar" style="width:55%;background:#E24B4A"></div></div>
+          <span class="vs-val val-r">0.55</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-secondary);padding:6px 0">β = drift growth rate (OLS slope of RDI over steps). Lower is better.</div>
+    </div>
+    <div>
+      <div style="margin-bottom:12px">
+        <div class="card-label">Key statistical findings</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px">
+            <div style="font-size:22px;font-weight:500;color:#1D9E75">d=0.71</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">Cohen's d vs C2</div>
+          </div>
+          <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px">
+            <div style="font-size:22px;font-weight:500;color:#185FA5">p&lt;0.001</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">Bonferroni adjusted</div>
+          </div>
+          <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px">
+            <div style="font-size:22px;font-weight:500;color:#3B6D11">87%</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">CVR reduction</div>
+          </div>
+          <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px">
+            <div style="font-size:22px;font-weight:500;color:#185FA5">H2a</div>
+            <div style="font-size:11px;color:var(--color-text-secondary)">Mechanism confirmed</div>
+          </div>
+        </div>
+      </div>
+      <div class="insight-box green">
+        <div class="insight-label">C6 vs C4 (H2a vs H2b)</div>
+        <div class="insight-text">HGEM (C6) significantly outperforms random-gate (C4). Semantic judgment — not just reduced memory volume — is what matters.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCENE 5 — ROI ═════════════════════════════════════════════════════ -->
+<div class="scene" id="scene-5">
+  <div class="card-label" style="margin-bottom:14px">The economic argument — why this is an engineering necessity</div>
+  <div class="two-col">
+    <div>
+      <div class="roi-calc">
+        <div class="roi-row">
+          <span class="roi-key">Time to gate one formula</span>
+          <span style="color:var(--color-text-primary);font-weight:500">G = 5 seconds</span>
+        </div>
+        <div class="roi-row">
+          <span class="roi-key">Time to debug a drift failure</span>
+          <span class="roi-val-r">T_debug = 60 min</span>
+        </div>
+        <div class="roi-row">
+          <span class="roi-key">Failure probability per ungated step</span>
+          <span class="roi-val-r">P = 10%</span>
+        </div>
+        <div class="roi-row">
+          <span class="roi-key">Break-even gate time</span>
+          <span class="roi-val-g">G* = 360 seconds</span>
+        </div>
+        <div class="roi-row" style="padding-top:8px;margin-top:4px;border-top:0.5px solid var(--color-border-tertiary)">
+          <span class="roi-key">Actual gate time</span>
+          <span class="roi-total">5 sec</span>
+        </div>
+      </div>
+      <div style="margin-top:10px;text-align:center;padding:14px;background:#EAF3DE;border-radius:var(--border-radius-lg)">
+        <div style="font-size:11px;color:#3B6D11;margin-bottom:4px">HGEM is economically justified by</div>
+        <div style="font-size:44px;font-weight:500;color:#0F6E56">72×</div>
+        <div style="font-size:12px;color:#3B6D11">G* ÷ G = 360s ÷ 5s</div>
+      </div>
+    </div>
+    <div>
+      <div class="card-label" style="margin-bottom:10px">Longitudinal value — 7-day transfer</div>
+      <div style="padding:12px;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);margin-bottom:12px">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">Steps to reconstruct context after 7-day gap + model reset</div>
+        <div class="vs-row" style="padding:4px 0">
+          <span style="font-size:12px;min-width:80px;color:#3B6D11;font-weight:500">HGEM</span>
+          <div class="vs-bar-wrap"><div class="vs-bar" style="width:18%;background:#1D9E75"></div></div>
+          <span class="vs-val val-g">3 steps</span>
+        </div>
+        <div class="vs-row" style="padding:4px 0">
+          <span style="font-size:12px;min-width:80px">Full history</span>
+          <div class="vs-bar-wrap"><div class="vs-bar" style="width:75%;background:#E24B4A"></div></div>
+          <span class="vs-val val-r">12 steps</span>
+        </div>
+        <div style="font-size:11px;color:#1D9E75;margin-top:6px;font-weight:500">75% faster context reconstruction</div>
+      </div>
+
+      <div class="card-label" style="margin-bottom:8px">Token efficiency</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-lg)">
+        <div style="text-align:center">
+          <div style="font-size:22px;font-weight:500;color:#1D9E75">38%</div>
+          <div style="font-size:11px;color:var(--color-text-secondary)">token reduction</div>
+        </div>
+        <div style="font-size:11px;color:var(--color-text-secondary);flex:1;line-height:1.5">T3 ephemeral deletion removes all conversational noise before API calls. Only verified knowledge injected.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="nav-bottom">
+  <button class="nav-btn" onclick="prev()" id="btn-prev" style="visibility:hidden">← Previous</button>
+  <span class="progress-text" id="prog-text">Scene 1 of 6</span>
+  <button class="nav-btn nav-btn-next" onclick="next()" id="btn-next">Next →</button>
+</div>
+
+</div>
+
+<script>
+const titles=["The problem: how LLMs drift","Drift measured: the numbers","The core interaction: the validation gate","How memory builds over 15 steps","Experimental proof: 7 conditions","The ROI argument"];
+const subs=["Watch what happens to an AI over 15 steps without HGEM","Reasoning Drift Index across all conditions — pilot data","This 5-second decision prevents hours of debugging","Graph-structured memory — no disconnected fragments","Statistical results — benchmarked on GSM8K, MATH, SciBench","Why human gating is economically necessary, not just academically interesting"];
+let cur=0;
+const total=6;
+
+function goTo(n){
+  document.querySelectorAll('.scene').forEach((s,i)=>{s.className='scene'+(i===n?' visible':'')});
+  document.querySelectorAll('.step-pill').forEach((p,i)=>{
+    p.className='step-pill'+(i===n?' active':(i<n?' done':''));
+  });
+  document.getElementById('scene-title').textContent=titles[n];
+  document.getElementById('scene-sub').textContent=subs[n];
+  document.getElementById('prog-text').textContent='Scene '+(n+1)+' of '+total;
+  document.getElementById('btn-prev').style.visibility=n===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent=n===total-1?'Start over →':'Next →';
+  cur=n;
+}
+function next(){cur===total-1?goTo(0):goTo(cur+1)}
+function prev(){if(cur>0)goTo(cur-1)}
+
+function acceptDemo(){
+  document.getElementById('gate-feedback').style.display='block';
+  document.getElementById('gate-feedback').innerHTML='<div style="background:#EAF3DE;border-radius:6px;padding:6px 10px;color:#0F6E56">Accepted. Node added to T2 — linked to ΔL node. AI will reference this in all future steps.</div>';
+  document.getElementById('new-node').style.display='inline-flex';
+  document.getElementById('gate-btns').style.opacity='.4';
+  document.getElementById('gate-btns').style.pointerEvents='none';
+}
+function rejectDemo(){
+  document.getElementById('gate-feedback').style.display='block';
+  document.getElementById('gate-feedback').innerHTML='<div style="background:#FCEBEB;border-radius:6px;padding:6px 10px;color:#A32D2D">Rejected. State discarded — will not influence future reasoning steps.</div>';
+  document.getElementById('gate-btns').style.opacity='.4';
+  document.getElementById('gate-btns').style.pointerEvents='none';
+}
+function t1Demo(){
+  document.getElementById('gate-feedback').style.display='block';
+  document.getElementById('gate-feedback').innerHTML='<div style="background:#E6F1FB;border-radius:6px;padding:6px 10px;color:#0C447C">Promoted to T1 — immutable. Cannot be overridden by AI or adversarial input.</div>';
+  document.getElementById('gate-btns').style.opacity='.4';
+  document.getElementById('gate-btns').style.pointerEvents='none';
+}
+</script>
