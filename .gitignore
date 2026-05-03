@@ -136,13 +136,72 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
+!.env.template
+!**/.env.template
 .envrc
 .venv
 env/
 venv/
 ENV/
+HGEM/
 env.bak/
 venv.bak/
+
+# HGEM local secrets and runtime files
+01_SETUP/credentials/.env
+01_SETUP/credentials/*.local
+03_SYSTEM/database/chromadb/chroma_store/
+*.sqlite
+*.sqlite3
+
+# HGEM datasets and generated experiment outputs
+# Keep directory skeletons via .gitkeep, but do not push raw/private/generated data.
+02_DATASETS/raw/**
+!02_DATASETS/raw/**/
+!02_DATASETS/raw/**/.gitkeep
+02_DATASETS/processed/**
+!02_DATASETS/processed/**/
+!02_DATASETS/processed/**/.gitkeep
+02_DATASETS/splits/**
+!02_DATASETS/splits/**/
+!02_DATASETS/splits/**/.gitkeep
+02_DATASETS/constraints/**
+!02_DATASETS/constraints/**/
+!02_DATASETS/constraints/**/.gitkeep
+02_DATASETS/adversarial/**
+!02_DATASETS/adversarial/**/
+!02_DATASETS/adversarial/**/.gitkeep
+04_EXPERIMENT/pilot/**
+!04_EXPERIMENT/pilot/**/
+!04_EXPERIMENT/pilot/**/.gitkeep
+04_EXPERIMENT/main/**
+!04_EXPERIMENT/main/**/
+!04_EXPERIMENT/main/**/.gitkeep
+04_EXPERIMENT/longitudinal/**
+!04_EXPERIMENT/longitudinal/**/
+!04_EXPERIMENT/longitudinal/**/.gitkeep
+04_EXPERIMENT/adversarial/**
+!04_EXPERIMENT/adversarial/**/
+!04_EXPERIMENT/adversarial/**/.gitkeep
+04_EXPERIMENT/sessions/**
+!04_EXPERIMENT/sessions/**/
+!04_EXPERIMENT/sessions/**/.gitkeep
+05_DATA/raw_logs/**
+!05_DATA/raw_logs/**/
+!05_DATA/raw_logs/**/.gitkeep
+05_DATA/cleaned/**
+!05_DATA/cleaned/**/
+!05_DATA/cleaned/**/.gitkeep
+05_DATA/analysis_ready/**
+!05_DATA/analysis_ready/**/
+!05_DATA/analysis_ready/**/.gitkeep
+05_DATA/surveys/**
+!05_DATA/surveys/**/
+!05_DATA/surveys/**/.gitkeep
+06_ANALYSIS/figures/**
+!06_ANALYSIS/figures/**/
+!06_ANALYSIS/figures/**/.gitkeep
 
 # Spyder project settings
 .spyderproject

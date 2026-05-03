@@ -1,0 +1,45 @@
+# Core LLM/API
+openai
+python-dotenv
+pydantic
+pydantic-settings
+httpx
+tenacity
+
+# API/backend
+fastapi
+uvicorn[standard]
+
+# Databases and memory stores
+psycopg[binary]
+neo4j
+redis
+chromadb
+
+# Data processing and datasets
+datasets
+numpy
+pandas
+pyarrow
+
+# Reasoning, metrics, and analysis
+sympy
+scipy
+scikit-learn
+statsmodels
+pingouin
+networkx
+
+# Embeddings and NLP utilities
+sentence-transformers
+
+# Visualization and notebooks
+matplotlib
+seaborn
+jupyterlab
+
+# Development and verification
+pytest
+ruff
+black
+
