@@ -1,0 +1,56 @@
+# HGEM Environment Versions
+
+Record exact versions after installation. Keep this file updated whenever the environment changes.
+
+## Experiment Constants
+
+MODEL_VERSION = gpt-4o-2024-08-06
+TEMPERATURE = 0.0
+
+## Python
+
+Python: 3.11.0
+Virtual environment path: C:\college\Github\Research\Human-Gated-External-Memory-HGEM\HGEM
+Pip: 26.1
+
+## Python Packages
+
+OpenAI SDK: 2.33.0
+FastAPI: 0.136.1
+Uvicorn: 0.46.0
+Pydantic: 2.13.3
+PostgreSQL client: psycopg 3.3.4
+Neo4j client: 6.1.0
+Redis client: 7.4.0
+ChromaDB: 1.5.8
+NumPy: 2.4.4
+Pandas: 3.0.2
+SciPy: 1.17.1
+Scikit-learn: 1.8.0
+Statsmodels: 0.14.6
+Pingouin: 0.6.1
+SymPy: 1.14.0
+Datasets: 4.8.5
+Sentence Transformers: 5.4.1
+Matplotlib: 3.10.9
+Seaborn: 0.13.2
+Pytest: 9.0.3
+Ruff: 0.15.12
+Black: 26.3.1
+
+## External Services
+
+PostgreSQL: not found on PATH during Step 1 bootstrap
+Neo4j: not found on PATH during Step 1 bootstrap
+Redis: not found on PATH during Step 1 bootstrap
+
+## Dataset Sources
+
+GSM8K:
+MATH Dataset:
+SciBench:
+
+## Notes
+
+- Do not put API keys, passwords, or secrets in this file.
+- Record service versions once local services are installed and reachable.
