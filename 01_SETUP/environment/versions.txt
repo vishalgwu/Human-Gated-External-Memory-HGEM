@@ -40,9 +40,9 @@ Black: 26.3.1
 
 ## External Services
 
-PostgreSQL: not found on PATH during Step 1 bootstrap
-Neo4j: not found on PATH during Step 1 bootstrap
-Redis: not found on PATH during Step 1 bootstrap
+PostgreSQL: 15.17 via Docker image `postgres:15`, container `hgem_postgres`
+Neo4j: 5.26.25 Community via Docker image `neo4j:5-community`, container `hgem_neo4j`
+Redis: 7.4.8 via Docker image `redis:7`, container `hgem_redis`
 
 ## Dataset Sources
 

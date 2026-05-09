@@ -13,12 +13,12 @@ Use this checklist before moving to Step 2.
 
 ## Required Services
 
-- [ ] PostgreSQL 15+ installed
-- [ ] PostgreSQL database `hgem_research` created
-- [ ] PostgreSQL tables planned: `tier1_immutable`, `experiment_events`, `conflict_log`
-- [ ] Neo4j 5.x installed or available
-- [ ] Neo4j database/service available for T2 graph memory
-- [ ] Redis installed or available on port `6379`
+- [x] PostgreSQL 15+ installed
+- [x] PostgreSQL database `hgem_research` created
+- [x] PostgreSQL tables planned: `tier1_immutable`, `experiment_events`, `conflict_log`
+- [x] Neo4j 5.x installed or available
+- [x] Neo4j database/service available for T2 graph memory
+- [x] Redis installed or available on port `6379`
 - [x] ChromaDB Python package installed for local measurement index
 
 ## Credentials
@@ -26,14 +26,14 @@ Use this checklist before moving to Step 2.
 - [x] `01_SETUP/credentials/.env.template` reviewed
 - [x] Local `.env` created from template, with real values only on local machine
 - [x] `.env` ignored by Git
-- [ ] OpenAI API key added only to local `.env`
+- [x] OpenAI API key added only to local `.env`
 
 ## HGEM Experiment Constants
 
 - [x] Experiment model documented as `gpt-4o-2024-08-06`
 - [x] Temperature documented as `0.0`
 - [ ] GPT model version will be logged on every API call
-- [ ] All database connection strings recorded locally, not committed
+- [x] All database connection strings recorded locally, not committed
 
 ## Gate Before Step 2
 
