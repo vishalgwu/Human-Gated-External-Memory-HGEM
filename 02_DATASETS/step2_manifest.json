@@ -1,0 +1,237 @@
+{
+  "step": "Step 2 - Dataset Download, Preparation, and Split",
+  "status": "starter_pipeline_completed_needs_constraint_review",
+  "download_date": "2026-05-09",
+  "split_random_seed": 20260509,
+  "sources": {
+    "gsm8k": {
+      "name": "GSM8K",
+      "source_url": "https://github.com/openai/grade-school-math/archive/3101c7d5072418e28b9008a6636bde82a006892c.zip",
+      "revision": "3101c7d5072418e28b9008a6636bde82a006892c",
+      "zip_path": "02_DATASETS\\raw\\gsm8k\\gsm8k_3101c7d50724.zip",
+      "extracted_root": "02_DATASETS\\raw\\gsm8k\\grade-school-math-3101c7d5072418e28b9008a6636bde82a006892c"
+    },
+    "scibench": {
+      "name": "SciBench",
+      "source_url": "https://github.com/mandyyyyii/scibench/archive/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5.zip",
+      "revision": "e14e0ca3d3db0f02928a18d435b9c3d15656a7c5",
+      "zip_path": "02_DATASETS\\raw\\scibench\\scibench_e14e0ca3d3db.zip",
+      "extracted_root": "02_DATASETS\\raw\\scibench\\scibench-e14e0ca3d3db0f02928a18d435b9c3d15656a7c5"
+    },
+    "math_dataset": {
+      "name": "MATH Dataset",
+      "official_project_repo": "https://github.com/hendrycks/math",
+      "official_project_repo_revision": "985bdc1696e88e8643f081a0ff4719da39f2ae2a",
+      "official_dataset_link_named_in_project_readme": "https://huggingface.co/datasets/qwedsacf/competition_math",
+      "raw_payload_repo": "https://huggingface.co/datasets/EleutherAI/hendrycks_math",
+      "raw_payload_revision": "21a5633873b6a120296cce3e2df9d5550074f4a3",
+      "raw_snapshot": "02_DATASETS\\raw\\math_dataset\\EleutherAI_hendrycks_math_snapshot"
+    }
+  },
+  "raw_storage": {
+    "gsm8k": {
+      "path": "02_DATASETS/raw/gsm8k",
+      "file_count": 17,
+      "bytes": 18812095
+    },
+    "math_dataset": {
+      "path": "02_DATASETS/raw/math_dataset",
+      "file_count": 27,
+      "bytes": 4889105
+    },
+    "scibench": {
+      "path": "02_DATASETS/raw/scibench",
+      "file_count": 490,
+      "bytes": 13397981
+    }
+  },
+  "processed": {
+    "gsm8k": {
+      "count": 8792,
+      "difficulty_counts": {
+        "Easy": 3114,
+        "Medium": 5138,
+        "Hard": 540
+      },
+      "subject_counts": {
+        "Arithmetic": 8792
+      },
+      "processed_json": "02_DATASETS\\processed\\gsm8k_processed\\all.json",
+      "processed_jsonl": "02_DATASETS\\processed\\gsm8k_processed\\all.jsonl"
+    },
+    "math_dataset": {
+      "count": 12500,
+      "difficulty_counts": {
+        "Hard": 3628,
+        "Medium": 5627,
+        "Easy": 3243,
+        "Unknown": 2
+      },
+      "subject_counts": {
+        "Algebra": 2931,
+        "Counting & Probability": 1245,
+        "Geometry": 1349,
+        "Intermediate Algebra": 2198,
+        "Number Theory": 1409,
+        "Prealgebra": 2076,
+        "Precalculus": 1292
+      },
+      "processed_json": "02_DATASETS\\processed\\math_dataset_processed\\all.json",
+      "processed_jsonl": "02_DATASETS\\processed\\math_dataset_processed\\all.jsonl"
+    },
+    "scibench": {
+      "count": 580,
+      "difficulty_counts": {
+        "Unknown": 580
+      },
+      "subject_counts": {
+        "atkins": 105,
+        "calculus": 42,
+        "chemmc": 38,
+        "class": 56,
+        "diff": 50,
+        "fund": 71,
+        "matter": 47,
+        "quan": 33,
+        "stat": 72,
+        "thermo": 66
+      },
+      "processed_json": "02_DATASETS\\processed\\scibench_processed\\all.json",
+      "processed_jsonl": "02_DATASETS\\processed\\scibench_processed\\all.jsonl"
+    }
+  },
+  "splits": {
+    "gsm8k": {
+      "eligible_count": 8792,
+      "pilot_count": 10,
+      "main_count": 40,
+      "holdout_count": 8742,
+      "pilot_difficulty_counts": {
+        "Medium": 6,
+        "Hard": 1,
+        "Easy": 3
+      },
+      "main_difficulty_counts": {
+        "Easy": 14,
+        "Medium": 23,
+        "Hard": 3
+      },
+      "holdout_difficulty_counts": {
+        "Easy": 3097,
+        "Medium": 5109,
+        "Hard": 536
+      },
+      "pilot_subject_counts": {
+        "Arithmetic": 10
+      },
+      "main_subject_counts": {
+        "Arithmetic": 40
+      },
+      "holdout_subject_counts": {
+        "Arithmetic": 8742
+      }
+    },
+    "math_dataset": {
+      "eligible_count": 12500,
+      "pilot_count": 10,
+      "main_count": 40,
+      "holdout_count": 12450,
+      "pilot_difficulty_counts": {
+        "Hard": 3,
+        "Easy": 2,
+        "Medium": 5
+      },
+      "main_difficulty_counts": {
+        "Easy": 10,
+        "Hard": 11,
+        "Medium": 19
+      },
+      "holdout_difficulty_counts": {
+        "Hard": 3614,
+        "Medium": 5603,
+        "Easy": 3231,
+        "Unknown": 2
+      },
+      "pilot_subject_counts": {
+        "Intermediate Algebra": 2,
+        "Algebra": 3,
+        "Geometry": 1,
+        "Prealgebra": 2,
+        "Precalculus": 1,
+        "Number Theory": 1
+      },
+      "main_subject_counts": {
+        "Algebra": 9,
+        "Prealgebra": 6,
+        "Precalculus": 4,
+        "Intermediate Algebra": 7,
+        "Counting & Probability": 4,
+        "Number Theory": 5,
+        "Geometry": 5
+      },
+      "holdout_subject_counts": {
+        "Algebra": 2919,
+        "Counting & Probability": 1241,
+        "Geometry": 1343,
+        "Intermediate Algebra": 2189,
+        "Number Theory": 1403,
+        "Prealgebra": 2068,
+        "Precalculus": 1287
+      }
+    },
+    "scibench": {
+      "eligible_count": 122,
+      "pilot_count": 10,
+      "main_count": 40,
+      "holdout_count": 530,
+      "pilot_difficulty_counts": {
+        "Unknown": 10
+      },
+      "main_difficulty_counts": {
+        "Unknown": 40
+      },
+      "holdout_difficulty_counts": {
+        "Unknown": 530
+      },
+      "pilot_subject_counts": {
+        "class": 5,
+        "thermo": 5
+      },
+      "main_subject_counts": {
+        "class": 18,
+        "thermo": 22
+      },
+      "holdout_subject_counts": {
+        "atkins": 105,
+        "calculus": 42,
+        "chemmc": 38,
+        "class": 33,
+        "diff": 50,
+        "fund": 71,
+        "matter": 47,
+        "quan": 33,
+        "stat": 72,
+        "thermo": 39
+      }
+    }
+  },
+  "constraint_files": {
+    "scope": "pilot and main selected problems only",
+    "review_status": "needs_subject_matter_review",
+    "counts": {
+      "GSM8K": 50,
+      "MATH": 50,
+      "SCIBENCH": 50
+    }
+  },
+  "adversarial_false_claim_banks": {
+    "status": "skeletons_created_empty_by_design",
+    "reason": "project docs require researcher-written plausible false claims"
+  },
+  "blockers_before_step_3": [
+    "Validate every pilot constraint file with a qualified subject-matter reviewer.",
+    "Build and review all main-set constraints before the main experiment.",
+    "Write 50 adversarial false claims per benchmark and cross-reference target constraints.",
+    "Decide whether MATH PRM annotations will be integrated from Lightman/PRM800K or replaced by expert review."
+  ]
+}

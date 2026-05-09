@@ -47,8 +47,32 @@ Redis: 7.4.8 via Docker image `redis:7`, container `hgem_redis`
 ## Dataset Sources
 
 GSM8K:
+  Source: https://github.com/openai/grade-school-math
+  Downloaded snapshot: https://github.com/openai/grade-school-math/archive/3101c7d5072418e28b9008a6636bde82a006892c.zip
+  Revision: 3101c7d5072418e28b9008a6636bde82a006892c
+  Download date: 2026-05-09
+  Raw path: 02_DATASETS/raw/gsm8k/
+  Processed problems: 8,792
+
 MATH Dataset:
+  Official project repo: https://github.com/hendrycks/math
+  Official project repo revision checked: 985bdc1696e88e8643f081a0ff4719da39f2ae2a
+  Official dataset link named in project README: https://huggingface.co/datasets/qwedsacf/competition_math
+  Raw payload source: https://huggingface.co/datasets/EleutherAI/hendrycks_math
+  Raw payload revision: 21a5633873b6a120296cce3e2df9d5550074f4a3
+  Download date: 2026-05-09
+  Raw path: 02_DATASETS/raw/math_dataset/
+  Processed problems: 12,500
+  Note: Hendrycks project repo contains loaders/evaluation code; dataset payload was stored from a Hugging Face mirror that preserves subject/split folders.
+
 SciBench:
+  Source: https://github.com/mandyyyyii/scibench
+  Downloaded snapshot: https://github.com/mandyyyyii/scibench/archive/e14e0ca3d3db0f02928a18d435b9c3d15656a7c5.zip
+  Revision: e14e0ca3d3db0f02928a18d435b9c3d15656a7c5
+  Download date: 2026-05-09
+  Raw path: 02_DATASETS/raw/scibench/
+  Processed problems: 580
+  Split focus: class and thermo sources, matching the mechanics/thermodynamics project focus.
 
 ## Notes
 
