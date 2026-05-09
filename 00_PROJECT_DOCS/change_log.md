@@ -21,5 +21,10 @@ Project: Human-Gated External Memory (HGEM)
 - Converted GSM8K, MATH, and SciBench into the standard processed JSON schema under git-ignored `02_DATASETS/processed/`.
 - Created fixed-seed splits with seed `20260509`: 10 pilot problems per benchmark, 40 main problems per benchmark, and all remaining records as holdout.
 - Generated starter constraint files for pilot and main selected problems only; all are marked `needs_subject_matter_review`.
-- Created empty adversarial false-claim bank skeletons; claims are intentionally not auto-filled because the project docs require researcher-written plausible false claims.
+- Initially created adversarial false-claim bank skeletons; later generated draft claims while keeping researcher review required.
 - Recorded source revisions, local file sizes, processed counts, split counts, and remaining review blockers in `02_DATASETS/step2_manifest.json`.
+- Added `02_DATASETS/audit_step2.py` and corrected SciBench pilot/main selection to use only records with worked solution text.
+- Generated draft adversarial false claims for each benchmark and kept them marked `needs_researcher_review`.
+- Added `02_DATASETS/STEP_2_AUDIT_REPORT.md` and `02_DATASETS/HUMAN_REVIEW_GUIDE.md` for beginner-readable review instructions.
+- Added `02_DATASETS/review_tool/`, a local HTML/FastAPI constraint review page that cross-checks generated JSON files against split records and saves reviewer metadata back to the same local constraint folder.
+- Added `02_DATASETS/PRE_HUMAN_REVIEW_CHECKLIST.md` to record the technical gate and remaining human-review tasks before Step 3.

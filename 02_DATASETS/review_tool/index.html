@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HGEM Constraint Review</title>
+  <style>
+    :root {
+      --bg: #f5f6f1;
+      --panel: #ffffff;
+      --panel-soft: #f0f5f7;
+      --ink: #1d2528;
+      --muted: #617075;
+      --line: #cfd9d6;
+      --blue: #1f6d91;
+      --blue-soft: #e2f0f6;
+      --green: #2e7a4f;
+      --green-soft: #e2f1e7;
+      --amber: #996b16;
+      --amber-soft: #f5ecd8;
+      --red: #a33b3b;
+      --red-soft: #f5dfdf;
+      --violet: #61558d;
+      --violet-soft: #ebe8f5;
+      --shadow: 0 10px 28px rgba(24, 36, 38, 0.09);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(31, 109, 145, .05) 1px, transparent 1px),
+        linear-gradient(rgba(46, 122, 79, .04) 1px, transparent 1px),
+        var(--bg);
+      background-size: 28px 28px;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 56px 1fr;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 18px;
+      background: rgba(255, 255, 255, .92);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border: 1px solid #b8c8ca;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue-soft), var(--green-soft));
+      color: var(--blue);
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      font-size: 16px;
+      line-height: 1;
+      margin: 0;
+      font-weight: 650;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .top-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 330px) minmax(360px, 1fr) minmax(330px, 430px);
+      min-height: 0;
+    }
+
+    aside, main, section.editor {
+      min-height: 0;
+      overflow: auto;
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, .72);
+    }
+
+    main {
+      background: rgba(255, 255, 255, .42);
+    }
+
+    section.editor {
+      border-left: 1px solid var(--line);
+      background: rgba(255, 255, 255, .78);
+    }
+
+    .pane-head {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      padding: 14px;
+      background: rgba(255, 255, 255, .94);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .pane-title {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    select, input[type="text"], input[type="date"] {
+      min-width: 0;
+      height: 34px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .upload {
+      grid-column: 1 / -1;
+      border: 1px dashed #9db0b5;
+      border-radius: 7px;
+      padding: 9px;
+      background: var(--panel-soft);
+    }
+
+    .upload input {
+      width: 100%;
+      font-size: 12px;
+    }
+
+    .queue {
+      padding: 10px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .item {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 10px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .item:hover, .item.active {
+      border-color: #80aebe;
+      box-shadow: 0 0 0 3px rgba(31, 109, 145, .13);
+    }
+
+    .item-row {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .pid {
+      font-weight: 700;
+      font-size: 13px;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 650;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .pill.todo { color: var(--amber); background: var(--amber-soft); border-color: #e2c789; }
+    .pill.final { color: var(--green); background: var(--green-soft); border-color: #afd8be; }
+    .pill.review { color: var(--violet); background: var(--violet-soft); border-color: #c6bfdf; }
+    .pill.bench { color: var(--blue); background: var(--blue-soft); border-color: #b9d7e6; }
+
+    .content {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .band {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .band-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: #fafbf8;
+    }
+
+    .band-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-right: auto;
+    }
+
+    .band-body {
+      padding: 14px;
+      line-height: 1.55;
+    }
+
+    .problem-text, .solution-text {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .solution-text {
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      background: #f7f9f4;
+      border: 1px solid #d9e2d7;
+      border-radius: 7px;
+      padding: 12px;
+      max-height: 330px;
+      overflow: auto;
+    }
+
+    .editor-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 88px;
+      resize: vertical;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    .constraint-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .constraint-row {
+      display: grid;
+      grid-template-columns: 1fr 34px;
+      gap: 7px;
+    }
+
+    .icon-btn, .primary, .secondary {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+      min-height: 34px;
+      cursor: pointer;
+      color: var(--ink);
+    }
+
+    .icon-btn {
+      font-weight: 750;
+      color: var(--red);
+    }
+
+    .primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+      padding: 0 13px;
+      font-weight: 700;
+    }
+
+    .secondary {
+      padding: 0 12px;
+      background: #f8faf7;
+      font-weight: 650;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .status-line {
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .claims {
+      display: grid;
+      gap: 8px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .claims li {
+      border-left: 3px solid #b88b2a;
+      background: #fbf7eb;
+      padding: 8px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 28px;
+      text-align: center;
+    }
+
+    @media (max-width: 1080px) {
+      .layout { grid-template-columns: 300px 1fr; }
+      section.editor { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--line); }
+    }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      aside, section.editor { border: 0; border-top: 1px solid var(--line); }
+      header { align-items: flex-start; height: auto; padding: 12px; flex-wrap: wrap; }
+      .top-actions { margin-left: 0; width: 100%; }
+      .filters, .field-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="mark">HG</div>
+      <div>
+        <h1>Constraint Review</h1>
+        <div class="subtitle" id="summaryText">Loading review queue</div>
+      </div>
+      <div class="top-actions">
+        <button class="secondary" id="refreshBtn" type="button">Refresh</button>
+        <button class="secondary" id="auditHintBtn" type="button">Audit command</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside>
+        <div class="pane-head">
+          <div class="pane-title">Review Queue</div>
+          <div class="filters">
+            <select id="splitFilter">
+              <option value="pilot">Pilot</option>
+              <option value="main">Main</option>
+              <option value="all">All</option>
+            </select>
+            <select id="benchmarkFilter">
+              <option value="ALL">All Benchmarks</option>
+              <option value="GSM8K">GSM8K</option>
+              <option value="MATH">MATH</option>
+              <option value="SCIBENCH">SciBench</option>
+            </select>
+            <select id="statusFilter">
+              <option value="ALL">All Statuses</option>
+              <option value="needs_subject_matter_review">Needs Review</option>
+              <option value="finalized">Finalized</option>
+              <option value="needs_revision">Needs Revision</option>
+            </select>
+            <div class="upload">
+              <input id="uploadInput" type="file" accept=".json,application/json">
+            </div>
+          </div>
+        </div>
+        <div class="queue" id="queue"></div>
+      </aside>
+
+      <main>
+        <div class="content" id="sourcePane">
+          <div class="empty">Choose a constraint file.</div>
+        </div>
+      </main>
+
+      <section class="editor">
+        <div class="pane-head">
+          <div class="pane-title">Review Editor</div>
+          <div class="status-line" id="filePath">No file loaded</div>
+        </div>
+        <div class="editor-body" id="editorPane">
+          <div class="empty">Load a file from the queue or upload a constraint JSON.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      queue: [],
+      selectedId: null,
+      loaded: null
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function statusClass(status) {
+      if (status === "finalized") return "final";
+      if (status === "needs_revision") return "review";
+      return "todo";
+    }
+
+    async function api(path, options = {}) {
+      const res = await fetch(path, {
+        headers: { "Content-Type": "application/json" },
+        ...options
+      });
+      if (!res.ok) {
+        const detail = await res.text();
+        throw new Error(detail);
+      }
+      return res.json();
+    }
+
+    async function refreshSummary() {
+      const summary = await api("/api/summary");
+      const finalized = summary.by_status.finalized || 0;
+      $("summaryText").textContent =
+        `${summary.total_files} files, ${finalized} finalized, ${summary.pilot_files} pilot, ${summary.main_files} main`;
+    }
+
+    async function loadQueue() {
+      const split = $("splitFilter").value;
+      const benchmark = $("benchmarkFilter").value;
+      const status = $("statusFilter").value;
+      const data = await api(`/api/constraints?split=${encodeURIComponent(split)}&benchmark=${encodeURIComponent(benchmark)}&status=${encodeURIComponent(status)}`);
+      state.queue = data.items;
+      renderQueue();
+      await refreshSummary();
+    }
+
+    function renderQueue() {
+      const queue = $("queue");
+      queue.innerHTML = "";
+      if (!state.queue.length) {
+        queue.innerHTML = `<div class="empty">No files match the filters.</div>`;
+        return;
+      }
+      for (const item of state.queue) {
+        const btn = document.createElement("button");
+        btn.className = `item ${item.problem_id === state.selectedId ? "active" : ""}`;
+        btn.type = "button";
+        btn.innerHTML = `
+          <div class="item-row">
+            <span class="pid">${item.problem_id}</span>
+            <span class="pill ${statusClass(item.status)}">${item.status}</span>
+          </div>
+          <div class="meta">
+            <span class="pill bench">${item.benchmark}</span>
+            ${item.split} - ${item.constraint_count} constraints - ${item.confidence || "unreviewed"}
+          </div>
+        `;
+        btn.addEventListener("click", () => loadConstraint(item.problem_id));
+        queue.appendChild(btn);
+      }
+    }
+
+    async function loadConstraint(problemId) {
+      const data = await api(`/api/constraint/${encodeURIComponent(problemId)}`);
+      state.selectedId = problemId;
+      state.loaded = data;
+      renderQueue();
+      renderSource(data);
+      renderEditor(data);
+    }
+
+    function renderSource(data) {
+      const problem = data.problem;
+      const constraint = data.constraint;
+      const claims = data.adversarial_claims || [];
+      $("sourcePane").innerHTML = `
+        <div class="band">
+          <div class="band-head">
+            <div class="band-title">${problem.problem_id}</div>
+            <span class="pill bench">${problem.benchmark}</span>
+            <span class="pill review">${problem.hgem_split}</span>
+            <span class="pill todo">${problem.difficulty || "Unknown"}</span>
+          </div>
+          <div class="band-body problem-text">${escapeHtml(problem.problem_text)}</div>
+        </div>
+        <div class="band">
+          <div class="band-head">
+            <div class="band-title">Source Solution</div>
+            <span class="pill bench">${problem.subject || ""}</span>
+          </div>
+          <div class="band-body">
+            <div class="solution-text">${escapeHtml(problem.solution_text || "No solution text found.")}</div>
+          </div>
+        </div>
+        <div class="band">
+          <div class="band-head">
+            <div class="band-title">Draft False Claims</div>
+            <span class="pill ${claims.length ? "todo" : "final"}">${claims.length}</span>
+          </div>
+          <div class="band-body">
+            ${claims.length ? `<ul class="claims">${claims.map((c) => `<li>${escapeHtml(c.claim_text)}<br><strong>Target:</strong> ${escapeHtml(c.targets_constraint || "")}</li>`).join("")}</ul>` : `<div class="meta">No linked claims for this problem.</div>`}
+          </div>
+        </div>
+      `;
+      $("filePath").textContent = data.constraint_path;
+    }
+
+    function renderEditor(data) {
+      const c = data.constraint;
+      const today = data.today;
+      const constraints = c.constraints || [];
+      $("editorPane").innerHTML = `
+        <div class="field-grid">
+          <label>Reviewer
+            <input id="reviewedBy" type="text" value="${escapeAttr(c.reviewed_by || "")}" placeholder="reviewer_id_or_name">
+          </label>
+          <label>Date
+            <input id="reviewedAt" type="date" value="${escapeAttr(c.reviewed_at || today)}">
+          </label>
+          <label>Confidence
+            <select id="confidence">
+              ${option("unreviewed", c.confidence)}
+              ${option("low", c.confidence)}
+              ${option("medium", c.confidence)}
+              ${option("high", c.confidence)}
+            </select>
+          </label>
+          <label>Status
+            <select id="reviewStatus">
+              ${option("needs_subject_matter_review", c.review_status)}
+              ${option("needs_revision", c.review_status)}
+              ${option("finalized", c.review_status)}
+            </select>
+          </label>
+        </div>
+        <label>Constraints
+          <div class="constraint-list" id="constraintList"></div>
+        </label>
+        <div class="actions">
+          <button class="secondary" type="button" id="addConstraintBtn">Add constraint</button>
+          <button class="primary" type="button" id="saveBtn">Save JSON</button>
+        </div>
+        <label>Review Notes
+          <textarea id="reviewNotes">${escapeHtml((c.review_notes || []).join("\\n"))}</textarea>
+        </label>
+        <div class="status-line" id="saveStatus"></div>
+      `;
+      const list = $("constraintList");
+      for (const text of constraints) addConstraintRow(text);
+      $("addConstraintBtn").addEventListener("click", () => addConstraintRow(""));
+      $("saveBtn").addEventListener("click", saveCurrent);
+    }
+
+    function addConstraintRow(text) {
+      const row = document.createElement("div");
+      row.className = "constraint-row";
+      row.innerHTML = `
+        <textarea class="constraintInput">${escapeHtml(text)}</textarea>
+        <button class="icon-btn" type="button" title="Remove constraint">x</button>
+      `;
+      row.querySelector("button").addEventListener("click", () => row.remove());
+      $("constraintList").appendChild(row);
+    }
+
+    async function saveCurrent() {
+      if (!state.selectedId) return;
+      const payload = {
+        constraints: [...document.querySelectorAll(".constraintInput")].map((el) => el.value).filter(Boolean),
+        reviewed_by: $("reviewedBy").value || null,
+        reviewed_at: $("reviewedAt").value || null,
+        confidence: $("confidence").value,
+        review_status: $("reviewStatus").value,
+        review_notes: $("reviewNotes").value.split("\\n").filter(Boolean)
+      };
+      $("saveStatus").textContent = "Saving...";
+      try {
+        const result = await api(`/api/constraint/${encodeURIComponent(state.selectedId)}/save`, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        $("saveStatus").textContent = `Saved ${result.path}`;
+        await loadQueue();
+        await loadConstraint(state.selectedId);
+      } catch (err) {
+        $("saveStatus").textContent = err.message;
+      }
+    }
+
+    async function handleUpload(file) {
+      if (!file) return;
+      const text = await file.text();
+      let payload;
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        alert("That file is not valid JSON.");
+        return;
+      }
+      try {
+        const matched = await api("/api/uploaded-constraint", {
+          method: "POST",
+          body: JSON.stringify({ payload })
+        });
+        state.selectedId = matched.problem.problem_id;
+        state.loaded = {
+          constraint_path: matched.constraint_path,
+          constraint: matched.uploaded,
+          problem: matched.problem,
+          adversarial_claims: [],
+          today: matched.today
+        };
+        renderSource(state.loaded);
+        renderEditor(state.loaded);
+        $("filePath").textContent = `${matched.constraint_path} (uploaded preview)`;
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function option(value, selected) {
+      return `<option value="${value}" ${value === selected ? "selected" : ""}>${value}</option>`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+
+    $("refreshBtn").addEventListener("click", loadQueue);
+    $("auditHintBtn").addEventListener("click", () => {
+      navigator.clipboard?.writeText(".\\HGEM\\Scripts\\python.exe 02_DATASETS\\audit_step2.py");
+      alert("Audit command copied.");
+    });
+    $("splitFilter").addEventListener("change", loadQueue);
+    $("benchmarkFilter").addEventListener("change", loadQueue);
+    $("statusFilter").addEventListener("change", loadQueue);
+    $("uploadInput").addEventListener("change", (event) => handleUpload(event.target.files[0]));
+
+    loadQueue().catch((err) => {
+      $("summaryText").textContent = err.message;
+    });
+  </script>
+</body>
+</html>

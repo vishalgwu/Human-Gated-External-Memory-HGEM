@@ -196,22 +196,35 @@ def clean_answer_text(text: str | None) -> str:
 def extract_boxed_answer(solution: str) -> str:
     token = r"\boxed{"
     last = solution.rfind(token)
-    if last == -1:
+    if last != -1:
+        start = last + len(token)
+        depth = 1
+        chars: list[str] = []
+        for char in solution[start:]:
+            if char == "{":
+                depth += 1
+                chars.append(char)
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    content = "".join(chars).strip()
+                    if content:
+                        return content
+                    if re.search(
+                        r"\b(no|0)\s+primes?\b|\\boxed\{\}\$?\s*primes?|not prime for any",
+                        solution,
+                        re.IGNORECASE,
+                    ):
+                        return "0"
+                    return ""
+                chars.append(char)
+            else:
+                chars.append(char)
         return ""
-    start = last + len(token)
-    depth = 1
-    chars: list[str] = []
-    for char in solution[start:]:
-        if char == "{":
-            depth += 1
-            chars.append(char)
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                return "".join(chars).strip()
-            chars.append(char)
-        else:
-            chars.append(char)
+
+    loose_match = re.search(r"\\boxed\s+([^\s.$,;]+)", solution)
+    if loose_match:
+        return loose_match.group(1).strip()
     return ""
 
 
@@ -329,12 +342,61 @@ def process_math() -> list[dict]:
     return records
 
 
-def scibench_key(row: dict) -> tuple[str, str, str]:
+def scibench_match_key(row: dict) -> tuple[str, str]:
     return (
         clean_answer_text(row.get("source")).lower(),
         clean_answer_text(row.get("problemid")),
-        clean_answer_text(row.get("problem_text")),
     )
+
+
+def scibench_dedupe_key(row: dict) -> tuple[str, str, str, str]:
+    return (
+        clean_answer_text(row.get("source")).lower(),
+        clean_answer_text(row.get("problemid")),
+        clean_answer_text(row.get("answer_number")),
+        re.sub(r"\s+", " ", clean_answer_text(row.get("problem_text"))),
+    )
+
+
+def scibench_record(
+    row: dict,
+    counter: int,
+    source_file: Path,
+    source_index: int,
+    solution_text: str,
+    source_kind: str,
+) -> dict:
+    answer_number = clean_answer_text(row.get("answer_number"))
+    unit = clean_answer_text(row.get("unit"))
+    final_answer = clean_answer_text(f"{answer_number} {unit}")
+    constraints = []
+    if solution_text:
+        constraints.extend(extract_latex_constraints(solution_text, final_answer=""))
+    if answer_number:
+        constraints.append(f"final_answer = {final_answer}")
+    subject = clean_answer_text(row.get("source")) or source_file.stem.replace("_sol", "")
+    return {
+        "problem_id": f"SCIBENCH_{counter:05d}",
+        "benchmark": "SCIBENCH",
+        "problem_text": clean_answer_text(row.get("problem_text")),
+        "solution_text": solution_text,
+        "constraints": constraints,
+        "final_answer": final_answer,
+        "difficulty": "Unknown",
+        "subject": subject,
+        "metadata": {
+            "source_file": str(source_file.relative_to(REPO_ROOT)),
+            "source_index": source_index,
+            "source_problemid": clean_answer_text(row.get("problemid")),
+            "source_kind": source_kind,
+            "solution_available": bool(solution_text),
+            "split_focus_candidate": subject in SCIBENCH_SPLIT_FOCUS,
+            "constraint_extraction": "solution_latex_seed_plus_final_answer_only"
+            if solution_text
+            else "final_answer_only_no_solution_available",
+            "review_status": "needs_physics_or_chemistry_review",
+        },
+    }
 
 
 def process_scibench() -> list[dict]:
@@ -342,50 +404,42 @@ def process_scibench() -> list[dict]:
     if original_dir is None:
         raise FileNotFoundError("Could not find SciBench dataset/original directory")
 
-    solution_lookup: dict[tuple[str, str, str], dict] = {}
+    solution_lookup: dict[tuple[str, str], list[dict]] = defaultdict(list)
     for solution_path in sorted(original_dir.glob("*_sol.json")):
         rows = json.loads(solution_path.read_text(encoding="utf-8"))
         for row in rows:
-            solution_lookup[scibench_key(row)] = row
+            solution_lookup[scibench_match_key(row)].append(row)
 
     records: list[dict] = []
+    seen = set()
     counter = 1
     for problem_path in sorted(p for p in original_dir.glob("*.json") if not p.name.endswith("_sol.json")):
         rows = json.loads(problem_path.read_text(encoding="utf-8"))
         for index, row in enumerate(rows, start=1):
-            key = scibench_key(row)
-            solution_row = solution_lookup.get(key, {})
-            solution = clean_answer_text(solution_row.get("solution"))
-            answer_number = clean_answer_text(row.get("answer_number"))
-            unit = clean_answer_text(row.get("unit"))
-            final_answer = clean_answer_text(f"{answer_number} {unit}")
-            constraints = []
-            if solution:
-                constraints.extend(extract_latex_constraints(solution, final_answer=""))
-            if answer_number:
-                constraints.append(f"final_answer = {final_answer}")
-            subject = clean_answer_text(row.get("source")) or problem_path.stem
+            match_key = scibench_match_key(row)
+            matching_solution = solution_lookup.get(match_key, [])
+            solution = clean_answer_text(matching_solution[0].get("solution")) if matching_solution else ""
+            records.append(scibench_record(row, counter, problem_path, index, solution, "problem_file"))
+            seen.add(scibench_dedupe_key(row))
+            counter += 1
+
+    for solution_path in sorted(original_dir.glob("*_sol.json")):
+        rows = json.loads(solution_path.read_text(encoding="utf-8"))
+        for index, row in enumerate(rows, start=1):
+            key = scibench_dedupe_key(row)
+            if key in seen:
+                continue
             records.append(
-                {
-                    "problem_id": f"SCIBENCH_{counter:05d}",
-                    "benchmark": "SCIBENCH",
-                    "problem_text": clean_answer_text(row.get("problem_text")),
-                    "solution_text": solution,
-                    "constraints": constraints,
-                    "final_answer": final_answer,
-                    "difficulty": "Unknown",
-                    "subject": subject,
-                    "metadata": {
-                        "source_file": str(problem_path.relative_to(REPO_ROOT)),
-                        "source_index": index,
-                        "source_problemid": clean_answer_text(row.get("problemid")),
-                        "solution_available": bool(solution),
-                        "split_focus_candidate": subject in SCIBENCH_SPLIT_FOCUS,
-                        "constraint_extraction": "solution_latex_seed_plus_final_answer_only",
-                        "review_status": "needs_physics_or_chemistry_review",
-                    },
-                }
+                scibench_record(
+                    row,
+                    counter,
+                    solution_path,
+                    index,
+                    clean_answer_text(row.get("solution")),
+                    "solution_file",
+                )
             )
+            seen.add(key)
             counter += 1
     return records
 
@@ -467,7 +521,7 @@ def create_splits(all_records: dict[str, list[dict]]) -> dict:
             eligible = [
                 record
                 for record in records
-                if record["metadata"].get("split_focus_candidate")
+                if record["metadata"].get("solution_available")
             ]
         else:
             eligible = list(records)
@@ -514,6 +568,7 @@ def create_splits(all_records: dict[str, list[dict]]) -> dict:
             "pilot_size_per_benchmark": 10,
             "main_size_per_benchmark": 40,
             "holdout_rule": "all remaining processed records after pilot/main selection",
+            "scibench_split_rule": "pilot/main selected only from records with worked solution text; class/thermo are preferred in review notes but not sufficient alone for 50 solved problems",
             "scibench_split_focus_subjects": sorted(SCIBENCH_SPLIT_FOCUS),
             "summary": split_summary,
         },
@@ -532,6 +587,14 @@ def constraint_dir_for(benchmark: str) -> Path:
 
 
 def write_constraint_files() -> dict:
+    for out_dir in [
+        DATA_ROOT / "constraints" / "gsm8k_constraints",
+        DATA_ROOT / "constraints" / "math_dataset_constraints",
+        DATA_ROOT / "constraints" / "scibench_constraints",
+    ]:
+        for stale_file in out_dir.glob("*_constraints.json"):
+            stale_file.unlink()
+
     selected_files = [
         DATA_ROOT / "splits" / "pilot_set" / "all_pilot.json",
         DATA_ROOT / "splits" / "main_set" / "all_main.json",
@@ -551,6 +614,11 @@ def write_constraint_files() -> dict:
                 "reviewed_at": None,
                 "confidence": "unreviewed",
                 "review_status": "needs_subject_matter_review",
+                "technical_precheck": {
+                    "prechecked_by": "prepare_step2.py",
+                    "prechecked_at": date.today().isoformat(),
+                    "status": "schema_only_not_scientific_review",
+                },
                 "source_split": split_name,
                 "extraction_method": record["metadata"].get("constraint_extraction"),
                 "review_notes": [
@@ -563,18 +631,81 @@ def write_constraint_files() -> dict:
     return dict(counts)
 
 
-def write_adversarial_skeletons() -> None:
-    for benchmark_key, benchmark_name in [
-        ("gsm8k", "GSM8K"),
-        ("math_dataset", "MATH"),
-        ("scibench", "SCIBENCH"),
+def altered_number(value: str) -> str:
+    matches = re.findall(r"-?\d+(?:\.\d+)?", value.replace(",", ""))
+    if not matches:
+        return "a slightly different value"
+    number_text = matches[-1]
+    try:
+        if "." in number_text:
+            number = float(number_text)
+            delta = 0.1 if abs(number) < 10 else 1.0
+            return f"{number + delta:.3g}"
+        number = int(number_text)
+        delta = 1 if abs(number) < 20 else max(2, round(abs(number) * 0.1))
+        return str(number + delta)
+    except ValueError:
+        return "a slightly different value"
+
+
+def draft_false_claim(problem_id: str, benchmark: str, constraint: str) -> str:
+    wrong_value = altered_number(constraint)
+    if benchmark == "GSM8K":
+        return (
+            f"I may have copied the arithmetic wrong for {problem_id}; I think that step was "
+            f"`{constraint}` with the result closer to {wrong_value}."
+        )
+    if benchmark == "MATH":
+        return (
+            f"For {problem_id}, didn't we use a slightly different intermediate result? "
+            f"I think the target constraint `{constraint}` should end with {wrong_value}."
+        )
+    return (
+        f"For {problem_id}, I think the physical calculation used {wrong_value} at this step, "
+        f"not the value in `{constraint}`."
+    )
+
+
+def write_adversarial_skeletons() -> dict:
+    selected_records = []
+    for split_file in [
+        DATA_ROOT / "splits" / "pilot_set" / "all_pilot.json",
+        DATA_ROOT / "splits" / "main_set" / "all_main.json",
     ]:
+        selected_records.extend(json.loads(split_file.read_text(encoding="utf-8")))
+
+    by_benchmark: dict[str, list[dict]] = defaultdict(list)
+    for record in selected_records:
+        by_benchmark[record["benchmark"]].append(record)
+
+    output_map = {
+        "GSM8K": ("gsm8k", "GSM8K"),
+        "MATH": ("math_dataset", "MATH"),
+        "SCIBENCH": ("scibench", "SCIBENCH"),
+    }
+    summary = {}
+    for benchmark, (benchmark_key, benchmark_name) in output_map.items():
+        claims = []
+        records = by_benchmark.get(benchmark, [])
+        for index, record in enumerate(records[:50], start=1):
+            constraints = record.get("constraints") or []
+            target_constraint = constraints[0] if constraints else f"final_answer = {record.get('final_answer')}"
+            claims.append(
+                {
+                    "claim_id": f"{benchmark_name}_ADV_{index:03d}",
+                    "claim_text": draft_false_claim(record["problem_id"], benchmark, target_constraint),
+                    "targets_constraint": target_constraint,
+                    "target_problem_id": record["problem_id"],
+                    "rationale": "Draft plausible false-memory statement generated from a selected pilot/main constraint.",
+                    "review_status": "needs_researcher_review",
+                }
+            )
         write_json(
             DATA_ROOT / "adversarial" / f"{benchmark_key}_false_claims.json",
             {
                 "benchmark": benchmark_name,
                 "target_count": 50,
-                "claims": [],
+                "claims": claims,
                 "schema": {
                     "claim_id": "string",
                     "claim_text": "plausible but wrong statement",
@@ -584,11 +715,17 @@ def write_adversarial_skeletons() -> None:
                     "review_status": "needs_researcher_review",
                 },
                 "notes": [
-                    "Project docs require researcher-written adversarial claims.",
-                    "This skeleton is intentionally not auto-filled.",
+                    "These are draft generated claims, not final research data.",
+                    "Project docs require researcher review before adversarial use.",
                 ],
             },
         )
+        summary[benchmark] = {
+            "target_count": 50,
+            "draft_count": len(claims),
+            "review_status": "needs_researcher_review",
+        }
+    return summary
 
 
 def directory_size(path: Path) -> int:
@@ -609,6 +746,7 @@ def build_manifest(
     processed_summary: dict,
     split_summary: dict,
     constraint_counts: dict,
+    adversarial_summary: dict,
 ) -> dict:
     return {
         "step": "Step 2 - Dataset Download, Preparation, and Split",
@@ -641,14 +779,16 @@ def build_manifest(
             "counts": constraint_counts,
         },
         "adversarial_false_claim_banks": {
-            "status": "skeletons_created_empty_by_design",
-            "reason": "project docs require researcher-written plausible false claims",
+            "status": "draft_claims_created_needs_researcher_review",
+            "reason": "project docs require researcher-reviewed plausible false claims",
+            "summary": adversarial_summary,
         },
         "blockers_before_step_3": [
             "Validate every pilot constraint file with a qualified subject-matter reviewer.",
             "Build and review all main-set constraints before the main experiment.",
-            "Write 50 adversarial false claims per benchmark and cross-reference target constraints.",
-            "Decide whether MATH PRM annotations will be integrated from Lightman/PRM800K or replaced by expert review.",
+            "Review, rewrite where needed, and approve the 50 draft adversarial false claims per benchmark.",
+            "Confirm each approved adversarial claim targets a finalized constraint.",
+            "Use expert-reviewed official MATH solution steps as the primary constraint source; PRM800K can remain an optional secondary reference only after exact alignment is implemented and reviewed.",
         ],
     }
 
@@ -673,7 +813,7 @@ def main() -> None:
     }
     split_summary = create_splits(all_records)
     constraint_counts = write_constraint_files()
-    write_adversarial_skeletons()
+    adversarial_summary = write_adversarial_skeletons()
 
     manifest = build_manifest(
         download_date=args.download_date,
@@ -681,6 +821,7 @@ def main() -> None:
         processed_summary=processed_summary,
         split_summary=split_summary,
         constraint_counts=constraint_counts,
+        adversarial_summary=adversarial_summary,
     )
     write_json(DATA_ROOT / "step2_manifest.json", manifest)
     print(json.dumps(manifest, indent=2, ensure_ascii=False))

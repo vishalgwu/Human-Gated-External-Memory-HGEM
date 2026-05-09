@@ -80,21 +80,21 @@
       "processed_jsonl": "02_DATASETS\\processed\\math_dataset_processed\\all.jsonl"
     },
     "scibench": {
-      "count": 580,
+      "count": 691,
       "difficulty_counts": {
-        "Unknown": 580
+        "Unknown": 691
       },
       "subject_counts": {
-        "atkins": 105,
-        "calculus": 42,
-        "chemmc": 38,
-        "class": 56,
-        "diff": 50,
-        "fund": 71,
-        "matter": 47,
-        "quan": 33,
-        "stat": 72,
-        "thermo": 66
+        "atkins": 121,
+        "calculus": 52,
+        "chemmc": 47,
+        "class": 63,
+        "diff": 55,
+        "fund": 81,
+        "matter": 57,
+        "quan": 41,
+        "stat": 92,
+        "thermo": 82
       },
       "processed_json": "02_DATASETS\\processed\\scibench_processed\\all.json",
       "processed_jsonl": "02_DATASETS\\processed\\scibench_processed\\all.jsonl"
@@ -180,10 +180,10 @@
       }
     },
     "scibench": {
-      "eligible_count": 122,
+      "eligible_count": 116,
       "pilot_count": 10,
       "main_count": 40,
-      "holdout_count": 530,
+      "holdout_count": 641,
       "pilot_difficulty_counts": {
         "Unknown": 10
       },
@@ -191,27 +191,41 @@
         "Unknown": 40
       },
       "holdout_difficulty_counts": {
-        "Unknown": 530
+        "Unknown": 641
       },
       "pilot_subject_counts": {
-        "class": 5,
-        "thermo": 5
+        "chemmc": 1,
+        "atkins": 1,
+        "calculus": 1,
+        "thermo": 2,
+        "fund": 1,
+        "stat": 2,
+        "matter": 1,
+        "quan": 1
       },
       "main_subject_counts": {
-        "class": 18,
-        "thermo": 22
+        "class": 3,
+        "stat": 7,
+        "fund": 3,
+        "chemmc": 3,
+        "atkins": 6,
+        "thermo": 7,
+        "calculus": 4,
+        "matter": 3,
+        "diff": 2,
+        "quan": 2
       },
       "holdout_subject_counts": {
-        "atkins": 105,
-        "calculus": 42,
-        "chemmc": 38,
-        "class": 33,
-        "diff": 50,
-        "fund": 71,
-        "matter": 47,
-        "quan": 33,
-        "stat": 72,
-        "thermo": 39
+        "atkins": 114,
+        "calculus": 47,
+        "chemmc": 43,
+        "class": 60,
+        "diff": 53,
+        "fund": 77,
+        "matter": 53,
+        "quan": 38,
+        "stat": 83,
+        "thermo": 73
       }
     }
   },
@@ -225,13 +239,31 @@
     }
   },
   "adversarial_false_claim_banks": {
-    "status": "skeletons_created_empty_by_design",
-    "reason": "project docs require researcher-written plausible false claims"
+    "status": "draft_claims_created_needs_researcher_review",
+    "reason": "project docs require researcher-reviewed plausible false claims",
+    "summary": {
+      "GSM8K": {
+        "target_count": 50,
+        "draft_count": 50,
+        "review_status": "needs_researcher_review"
+      },
+      "MATH": {
+        "target_count": 50,
+        "draft_count": 50,
+        "review_status": "needs_researcher_review"
+      },
+      "SCIBENCH": {
+        "target_count": 50,
+        "draft_count": 50,
+        "review_status": "needs_researcher_review"
+      }
+    }
   },
   "blockers_before_step_3": [
     "Validate every pilot constraint file with a qualified subject-matter reviewer.",
     "Build and review all main-set constraints before the main experiment.",
-    "Write 50 adversarial false claims per benchmark and cross-reference target constraints.",
-    "Decide whether MATH PRM annotations will be integrated from Lightman/PRM800K or replaced by expert review."
+    "Review, rewrite where needed, and approve the 50 draft adversarial false claims per benchmark.",
+    "Confirm each approved adversarial claim targets a finalized constraint.",
+    "Use expert-reviewed official MATH solution steps as the primary constraint source; PRM800K can remain an optional secondary reference only after exact alignment is implemented and reviewed."
   ]
 }

@@ -71,8 +71,9 @@ SciBench:
   Revision: e14e0ca3d3db0f02928a18d435b9c3d15656a7c5
   Download date: 2026-05-09
   Raw path: 02_DATASETS/raw/scibench/
-  Processed problems: 580
-  Split focus: class and thermo sources, matching the mechanics/thermodynamics project focus.
+  Processed problems: 691
+  Split rule: pilot/main selected only from SciBench records with worked solution text.
+  Note: class and thermo remain priority review subjects, but the available solved subset is broader than those two subjects.
 
 ## Notes
 
